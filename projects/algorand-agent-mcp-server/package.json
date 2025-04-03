@@ -5,11 +5,15 @@
   "scripts": {
     "build": "npm run clean && tsc",
     "clean": "rimraf build",
-    "start": "tsx src/index.ts"
+    "start": "tsx src/index.ts",
+    "test": "npm run build && tsx src/test_client.ts"
   },
   "license": "MIT",
   "dependencies": {
+    "@algorandfoundation/algokit-utils": "^9.0.0",
     "@modelcontextprotocol/sdk": "^1.8.0",
+    "@noble/ed25519": "^2.2.3",
+    "algosdk": "^3.2.0",
     "dotenv": "^16.4.7",
     "zod": "^3.24.2"
   },

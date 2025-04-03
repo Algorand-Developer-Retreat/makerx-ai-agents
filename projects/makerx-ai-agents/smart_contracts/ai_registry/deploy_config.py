@@ -1,3 +1,4 @@
+import base64
 import logging
 from pathlib import Path
 
@@ -33,19 +34,29 @@ def deploy() -> None:
         template_params={"AI_REGISTRY_APP_ID": app_client.app_id},
     ).compiled_base64_to_bytes
 
+
     lsig_account = algorand.account.logicsig(compiled_lsig)
     algorand.set_default_signer(lsig_account)
+    algorand.account.ensure_funded_from_environment(
+        app_client.app_address,
+        min_spending_balance=algokit_utils.AlgoAmount(algo=10),
+    )
+    algorand.account.ensure_funded_from_environment(
+        lsig_account.address, min_spending_balance=algokit_utils.AlgoAmount(algo=10)
+    )
+
+    # Print the AI agent environment variables
+    agent_name = "mcpagent"
+    signing_key = nacl.signing.SigningKey.generate()
+    public_key = signing_key.verify_key.encode()
+    
+    base64_compiled_lsig = base64.b64encode(compiled_lsig).decode("utf-8")
+    logger.info(f"AGENT_LSIG={base64_compiled_lsig}")
+    logger.info(f"AGENT_AI_REGISTRY_APP_ID={app_client.app_id}")
+    logger.info(f"AGENT_PRIVATE_KEY={base64.b64encode(signing_key.encode()).decode("utf-8")}")
+    logger.info(f"AGENT_NAME={agent_name}")
 
     for i in range(10):
-
-        algorand.account.ensure_funded_from_environment(
-            app_client.app_address,
-            min_spending_balance=algokit_utils.AlgoAmount(algo=10),
-        )
-        algorand.account.ensure_funded_from_environment(
-            lsig_account.address, min_spending_balance=algokit_utils.AlgoAmount(algo=10)
-        )
-
         test_amount = 1
         test_receiver = deployer_.public_key
         test_agent_name = "test_agent" + str(i)
@@ -93,7 +104,7 @@ def deploy() -> None:
                 ),
             )
         except Exception as e:
-            logger.info(f"Error: {e}")
+            logger.info(f"Expected Error: {e}")
 
         logger.info(
             f"Called validate_and_submit_pay on {app_client.app_name} ({app_client.app_id}) "
