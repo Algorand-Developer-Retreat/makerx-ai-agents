@@ -140,6 +140,7 @@ def build(output_dir: Path, contract_path: Path) -> Path:
                     "--output",
                     str(_get_output_path(output_dir, deployment_extension)),
                 ],
+                encoding='utf-8',
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
