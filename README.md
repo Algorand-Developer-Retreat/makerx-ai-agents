@@ -1,4 +1,4 @@
-# ai-agents
+# makerx-ai-agents
 
 Welcome to your new AlgoKit project!
 

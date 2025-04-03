@@ -1,0 +1,118 @@
+#pragma version 10
+#pragma typetrack false
+
+// smart_contracts.ai_registry.contract.AiRegistry.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 1 0
+    bytecblock 0x6c76 0x068101
+    txn NumAppArgs
+    bz main_bare_routing@6
+    pushbytes 0x0d4e85b7 // method "issue_payment(uint64,account,string,byte[],byte[],uint64)void"
+    txna ApplicationArgs 0
+    match main_issue_payment_route@5
+
+main_after_if_else@8:
+    intc_1 // 0
+    return
+
+main_issue_payment_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 3
+    extract 2 0
+    txna ApplicationArgs 4
+    extract 2 0
+    txna ApplicationArgs 5
+    extract 2 0
+    txna ApplicationArgs 6
+    btoi
+    callsub issue_payment
+    intc_0 // 1
+    return
+
+main_bare_routing@6:
+    txn OnCompletion
+    bnz main_after_if_else@8
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return
+
+
+// smart_contracts.ai_registry.contract.AiRegistry.issue_payment(amount: uint64, receiver: bytes, agent_name: bytes, agent_p_key: bytes, signature: bytes, first_valid_round: uint64) -> void:
+issue_payment:
+    proto 6 0
+
+issue_payment_while_top@5:
+    pushint 1910 // 1910
+    global OpcodeBudget
+    >
+    bz issue_payment_after_while@10
+    itxn_begin
+    pushint 6 // appl
+    itxn_field TypeEnum
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    bytec_1 // 0x068101
+    itxn_field ApprovalProgram
+    bytec_1 // 0x068101
+    itxn_field ClearStateProgram
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    b issue_payment_while_top@5
+
+issue_payment_after_while@10:
+    bytec_0 // 0x6c76
+    box_len
+    bury 1
+    bz issue_payment_after_if_else@2
+    bytec_0 // 0x6c76
+    box_get
+    swap
+    btoi
+    swap
+    assert // check self.last_valid exists
+    frame_dig -1
+    <
+    assert
+
+issue_payment_after_if_else@2:
+    frame_dig -6
+    itob
+    frame_dig -5
+    concat
+    frame_dig -4
+    concat
+    frame_dig -1
+    itob
+    swap
+    dig 1
+    concat
+    frame_dig -2
+    frame_dig -3
+    ed25519verify_bare
+    assert // Invalid signature
+    itxn_begin
+    frame_dig -6
+    itxn_field Amount
+    frame_dig -5
+    itxn_field Receiver
+    intc_0 // pay
+    itxn_field TypeEnum
+    pushint 100000 // 100000
+    itxn_field Fee
+    itxn_submit
+    bytec_0 // 0x6c76
+    swap
+    box_put
+    retsub

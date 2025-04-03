@@ -1,0 +1,27 @@
+#pragma version 10
+#pragma typetrack false
+
+// smart_contracts.ai_lsig.contract.ai_lsig() -> uint64:
+main:
+    intcblock TMPL_AI_REGISTRY_APP_ID
+    txn TypeEnum
+    pushint 6 // appl
+    ==
+    assert
+    txn ApplicationID
+    intc_0 // TMPL_AI_REGISTRY_APP_ID
+    ==
+    assert
+    txn RekeyTo
+    global ZeroAddress
+    ==
+    assert
+    txn CloseRemainderTo
+    global ZeroAddress
+    ==
+    assert
+    txn OnCompletion
+    !
+    assert
+    pushint 1 // 1
+    return

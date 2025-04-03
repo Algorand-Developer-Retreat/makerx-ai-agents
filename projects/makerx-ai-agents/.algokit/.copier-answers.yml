@@ -6,5 +6,4 @@ author_name: Altynbek Orumbayev
 contract_name: hello_world
 deployment_language: python
 preset_name: production
-project_name: ai-agents
-
+project_name: makerx-ai-agents

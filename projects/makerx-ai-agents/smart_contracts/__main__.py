@@ -108,6 +108,7 @@ def build(output_dir: Path, contract_path: Path) -> Path:
             "--no-output-arc32",
             "--output-arc56",
             "--output-source-map",
+            "--debug-level=0",
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,

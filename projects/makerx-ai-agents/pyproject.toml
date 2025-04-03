@@ -1,33 +1,50 @@
 [project]
-name = "ai-agents"
+name = "makerx-ai-agents"
 version = "0.1.0"
 description = "Algorand smart contracts"
-authors = [{ name = "Altynbek Orumbayev", email = "altynbek.orumbayev@makerx.com.au" }]
+authors = [
+  { name = "Altynbek Orumbayev", email = "altynbek.orumbayev@makerx.com.au" },
+]
 requires-python = "~=3.12"
 readme = "README.md"
 dependencies = [
-    "algokit-utils>=4.0.0,<5",
-    "python-dotenv>=1.0.0,<2",
-    "algorand-python>=2.0.0,<3",
-    "algorand-python-testing>=0.4.0,<0.5",
+  "algokit-utils>=4.0.0,<5",
+  "python-dotenv>=1.0.0,<2",
+  "algorand-python>=2.0.0,<3",
+  "algorand-python-testing>=0.4.0,<0.5",
 ]
 
 [dependency-groups]
 dev = [
-    "algokit-client-generator>=2.1.0,<3",
-    "black[d]",
-    "ruff>=0.9.4,<0.10",
-    "mypy>=1,<2",
-    "pytest",
-    "pytest-cov",
-    "pip-audit",
-    "pre-commit",
-    "puyapy",
+  "algokit-client-generator>=2.1.0,<3",
+  "black[d]",
+  "ruff>=0.9.4,<0.10",
+  "mypy>=1,<2",
+  "pytest",
+  "pytest-cov",
+  "pip-audit",
+  "pre-commit",
+  "puyapy",
 ]
 
 [tool.ruff]
 line-length = 120
-lint.select = ["E", "F", "ANN", "UP", "N", "C4", "B", "A", "YTT", "W", "FBT", "Q", "RUF", "I"]
+lint.select = [
+  "E",
+  "F",
+  "ANN",
+  "UP",
+  "N",
+  "C4",
+  "B",
+  "A",
+  "YTT",
+  "W",
+  "FBT",
+  "Q",
+  "RUF",
+  "I",
+]
 lint.unfixable = ["B", "RUF"]
 
 [tool.ruff.lint.flake8-annotations]
