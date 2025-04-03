@@ -6,6 +6,9 @@
     },
     {
       "path": "projects/makerx-ai-agents"
+    },
+    {
+      "path": "projects/algorand-agent-mcp-server"
     }
   ],
   "settings": {
