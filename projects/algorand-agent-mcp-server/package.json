@@ -14,6 +14,7 @@
     "@modelcontextprotocol/sdk": "^1.8.0",
     "@noble/ed25519": "^2.2.3",
     "algosdk": "^3.2.0",
+    "cross-fetch": "^4.1.0",
     "dotenv": "^16.4.7",
     "zod": "^3.24.2"
   },

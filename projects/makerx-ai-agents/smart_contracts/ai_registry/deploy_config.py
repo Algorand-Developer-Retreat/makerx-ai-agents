@@ -87,25 +87,6 @@ def deploy() -> None:
             ),
         )
 
-        try:
-            app_client.send.issue_payment(
-                args=IssuePaymentArgs(
-                    amount=test_amount,
-                    receiver=test_receiver,
-                    agent_name=test_agent_name,
-                    agent_p_key=public_key,
-                    signature=signature,
-                    first_valid_round=first,
-                ),
-                params=algokit_utils.CommonAppCallParams(
-                    static_fee=algokit_utils.AlgoAmount(micro_algo=3000),
-                    sender=lsig_account.address,
-                    note=f"test_agent_{i}".encode(),
-                ),
-            )
-        except Exception as e:
-            logger.info(f"Expected Error: {e}")
-
         logger.info(
             f"Called validate_and_submit_pay on {app_client.app_name} ({app_client.app_id}) "
             f"with amount={test_amount}, received: {response.abi_return}"

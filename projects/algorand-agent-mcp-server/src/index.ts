@@ -1,15 +1,19 @@
+// Add fetch polyfill
+import "cross-fetch/polyfill";
+
 import { AlgorandClient, Config } from "@algorandfoundation/algokit-utils";
 import { Logger } from "@algorandfoundation/algokit-utils/types/logging";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import algosdk, { ABIUintType } from "algosdk";
 import dotenv from "dotenv";
+import crypto from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
 
 dotenv.config({
-  path: "C:\\dev\\makerx\\makerx-ai-agents\\projects\\algorand-agent-mcp-server\\.env",
+  path: path.resolve(__dirname, "..", ".env"),
 });
 
 if (!process.env.ALGOD_SERVER) {
@@ -32,6 +36,29 @@ const server = new McpServer(
     },
   }
 );
+
+// Register required methods as tools
+server.tool("resources", {}, async () => {
+  return {
+    content: [
+      {
+        type: "text",
+        text: "[]",
+      },
+    ],
+  };
+});
+
+server.tool("prompts", {}, async () => {
+  return {
+    content: [
+      {
+        type: "text",
+        text: "[]",
+      },
+    ],
+  };
+});
 
 const mcpAlgorandLogger: Logger = {
   error: (message: string, ...optionalParams: unknown[]) =>
@@ -64,6 +91,11 @@ const mcpAlgorandLogger: Logger = {
 server.tool("issue_transaction", { receiver: z.string().length(58), amount: z.number() }, async ({ receiver, amount }) => {
   try {
     const ed = await import("@noble/ed25519");
+    // Configure the ed25519 library to use Node.js crypto
+    ed.etc.sha512Async = async (message: Uint8Array): Promise<Uint8Array> => {
+      return crypto.createHash("sha512").update(Buffer.from(message)).digest();
+    };
+
     const algorand = AlgorandClient.fromEnvironment();
 
     // Console output messes with MCP
