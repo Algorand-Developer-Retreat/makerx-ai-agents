@@ -3,19 +3,66 @@
 
 // smart_contracts.ai_registry.contract.AiRegistry.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0
-    bytecblock 0x6c76 0x068101
-    txn NumAppArgs
-    bz main_bare_routing@6
-    pushbytes 0x0d4e85b7 // method "issue_payment(uint64,account,string,byte[],byte[],uint64)void"
-    txna ApplicationArgs 0
-    match main_issue_payment_route@5
+    intcblock 0 1 8 16 100000
+    bytecblock 0x6c76 "lsig_addr" "admin" 0x068101 0x6170
+    txn ApplicationID
+    bnz main_after_if_else@2
+    bytec_1 // "lsig_addr"
+    global ZeroAddress
+    app_global_put
+    bytec_2 // "admin"
+    global ZeroAddress
+    app_global_put
 
-main_after_if_else@8:
-    intc_1 // 0
+main_after_if_else@2:
+    txn NumAppArgs
+    bz main_bare_routing@10
+    pushbytess 0xd75c04e6 0x27a98df7 0x52733469 0x2bcf04f8 0x11098788 // method "bootstrap(account,account)void", method "register_agent(byte[],uint64,uint64,uint64)void", method "issue_payment(uint64,account,string,byte[],byte[])void", method "issue_axfer(account,uint64,uint64,byte[],byte[])void", method "issue_opt_in(uint64,byte[],byte[])void"
+    txna ApplicationArgs 0
+    match main_bootstrap_route@5 main_register_agent_route@6 main_issue_payment_route@7 main_issue_axfer_route@8 main_issue_opt_in_route@9
+
+main_after_if_else@12:
+    intc_0 // 0
     return
 
-main_issue_payment_route@5:
+main_issue_opt_in_route@9:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    extract 2 0
+    callsub issue_opt_in
+    intc_1 // 1
+    return
+
+main_issue_axfer_route@8:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    btoi
+    txna ApplicationArgs 4
+    extract 2 0
+    txna ApplicationArgs 5
+    extract 2 0
+    callsub issue_axfer
+    intc_1 // 1
+    return
+
+main_issue_payment_route@7:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -32,46 +79,221 @@ main_issue_payment_route@5:
     extract 2 0
     txna ApplicationArgs 5
     extract 2 0
-    txna ApplicationArgs 6
-    btoi
     callsub issue_payment
-    intc_0 // 1
+    intc_1 // 1
     return
 
-main_bare_routing@6:
+main_register_agent_route@6:
     txn OnCompletion
-    bnz main_after_if_else@8
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    btoi
+    txna ApplicationArgs 4
+    btoi
+    callsub register_agent
+    intc_1 // 1
+    return
+
+main_bootstrap_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 2
+    btoi
+    txnas Accounts
+    callsub bootstrap
+    intc_1 // 1
+    return
+
+main_bare_routing@10:
+    txn OnCompletion
+    bnz main_after_if_else@12
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
-// smart_contracts.ai_registry.contract.AiRegistry.issue_payment(amount: uint64, receiver: bytes, agent_name: bytes, agent_p_key: bytes, signature: bytes, first_valid_round: uint64) -> void:
-issue_payment:
-    proto 6 0
+// _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
+ensure_budget:
+    proto 2 0
+    frame_dig -2
+    pushint 10 // 10
+    +
 
-issue_payment_while_top@5:
-    pushint 1910 // 1910
+ensure_budget_while_top@1:
+    frame_dig 0
     global OpcodeBudget
     >
-    bz issue_payment_after_while@10
+    bz ensure_budget_after_while@7
     itxn_begin
     pushint 6 // appl
     itxn_field TypeEnum
     pushint 5 // DeleteApplication
     itxn_field OnCompletion
-    bytec_1 // 0x068101
+    bytec_3 // 0x068101
     itxn_field ApprovalProgram
-    bytec_1 // 0x068101
+    bytec_3 // 0x068101
     itxn_field ClearStateProgram
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    b issue_payment_while_top@5
+    frame_dig -1
+    switch ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4
 
-issue_payment_after_while@10:
+ensure_budget_switch_case_next@6:
+    itxn_submit
+    b ensure_budget_while_top@1
+
+ensure_budget_switch_case_1@4:
+    global MinTxnFee
+    itxn_field Fee
+    b ensure_budget_switch_case_next@6
+
+ensure_budget_switch_case_0@3:
+    intc_0 // 0
+    itxn_field Fee
+    b ensure_budget_switch_case_next@6
+
+ensure_budget_after_while@7:
+    retsub
+
+
+// smart_contracts.ai_registry.contract.AiRegistry.bootstrap(lsig_address: bytes, admin_address: bytes) -> void:
+bootstrap:
+    proto 2 0
+    intc_0 // 0
+    bytec_1 // "lsig_addr"
+    app_global_get_ex
+    assert // check self.lsig_addr exists
+    global ZeroAddress
+    ==
+    assert // Already bootstrapped
+    bytec_1 // "lsig_addr"
+    frame_dig -2
+    app_global_put
+    bytec_2 // "admin"
+    frame_dig -1
+    app_global_put
+    retsub
+
+
+// smart_contracts.ai_registry.contract.AiRegistry.register_agent(agent_p_key: bytes, permissions: uint64, max_amount: uint64, valid_until_round: uint64) -> void:
+register_agent:
+    proto 4 0
+    txn Sender
+    intc_0 // 0
+    bytec_2 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // Only admin can register agents
+    frame_dig -3
+    itob
+    frame_dig -2
+    itob
+    concat
+    frame_dig -1
+    itob
+    concat
+    bytec 4 // 0x6170
+    frame_dig -4
+    concat
+    dup
+    box_del
+    pop
+    swap
+    box_put
+    retsub
+
+
+// smart_contracts.ai_registry.contract.AiRegistry._verify_agent_permissions(agent_p_key: bytes, operation_bit: uint64, amount: uint64, current_round: uint64) -> void:
+_verify_agent_permissions:
+    proto 4 0
+    txn Sender
+    intc_0 // 0
+    bytec_1 // "lsig_addr"
+    app_global_get_ex
+    assert // check self.lsig_addr exists
+    ==
+    assert // Only LSIG can call this method
+    bytec 4 // 0x6170
+    frame_dig -4
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Agent not registered
+    box_get
+    assert // check self.agent_permissions entry exists
+    dup
+    len
+    intc_2 // 8
+    dig 1
+    >=
+    intc_2 // 8
+    dig 2
+    uncover 2
+    select
+    dig 2
+    intc_0 // 0
+    dig 2
+    substring3
+    btoi
+    intc_3 // 16
+    dig 3
+    >=
+    intc_3 // 16
+    dig 4
+    uncover 2
+    select
+    dig 4
+    uncover 3
+    dig 2
+    substring3
+    btoi
+    pushint 24 // 24
+    dig 4
+    >=
+    pushint 24 // 24
+    uncover 5
+    uncover 2
+    select
+    uncover 4
+    uncover 3
+    uncover 2
+    substring3
+    btoi
+    uncover 2
+    frame_dig -3
+    getbit
+    assert // Operation not allowed for this agent
+    frame_dig -2
+    uncover 2
+    <=
+    assert // Amount exceeds agent's limit
+    frame_dig -1
+    >=
+    assert // Agent authorization expired
+    retsub
+
+
+// smart_contracts.ai_registry.contract.AiRegistry.issue_payment(amount: uint64, receiver: bytes, agent_name: bytes, agent_p_key: bytes, signature: bytes) -> void:
+issue_payment:
+    proto 5 0
+    pushint 1900 // 1900
+    intc_0 // 0
+    callsub ensure_budget
     bytec_0 // 0x6c76
     box_len
     bury 1
@@ -82,36 +304,157 @@ issue_payment_after_while@10:
     btoi
     swap
     assert // check self.last_valid exists
-    frame_dig -1
+    txn FirstValid
     <
     assert
 
 issue_payment_after_if_else@2:
-    frame_dig -6
-    itob
+    frame_dig -2
+    intc_0 // 0
     frame_dig -5
-    concat
+    txn FirstValid
+    callsub _verify_agent_permissions
+    frame_dig -5
+    itob
     frame_dig -4
     concat
-    frame_dig -1
-    itob
-    swap
-    dig 1
-    concat
-    frame_dig -2
     frame_dig -3
+    concat
+    txn FirstValid
+    itob
+    concat
+    frame_dig -1
+    frame_dig -2
     ed25519verify_bare
     assert // Invalid signature
     itxn_begin
-    frame_dig -6
-    itxn_field Amount
     frame_dig -5
+    itxn_field Amount
+    frame_dig -4
     itxn_field Receiver
-    intc_0 // pay
+    intc_1 // pay
     itxn_field TypeEnum
-    pushint 100000 // 100000
+    intc 4 // 100000
     itxn_field Fee
     itxn_submit
+    txn FirstValid
+    itob
+    bytec_0 // 0x6c76
+    swap
+    box_put
+    retsub
+
+
+// smart_contracts.ai_registry.contract.AiRegistry.issue_axfer(receiver: bytes, amount: uint64, asset_id: uint64, agent_p_key: bytes, signature: bytes) -> void:
+issue_axfer:
+    proto 5 0
+    pushint 2000 // 2000
+    intc_0 // 0
+    callsub ensure_budget
+    bytec_0 // 0x6c76
+    box_len
+    bury 1
+    bz issue_axfer_after_if_else@2
+    bytec_0 // 0x6c76
+    box_get
+    swap
+    btoi
+    swap
+    assert // check self.last_valid exists
+    txn FirstValid
+    <
+    assert
+
+issue_axfer_after_if_else@2:
+    frame_dig -2
+    intc_1 // 1
+    frame_dig -4
+    txn FirstValid
+    callsub _verify_agent_permissions
+    frame_dig -4
+    itob
+    frame_dig -5
+    swap
+    concat
+    frame_dig -3
+    itob
+    concat
+    txn FirstValid
+    itob
+    concat
+    frame_dig -1
+    frame_dig -2
+    ed25519verify_bare
+    assert // Invalid signature
+    itxn_begin
+    frame_dig -3
+    itxn_field XferAsset
+    frame_dig -4
+    itxn_field AssetAmount
+    frame_dig -5
+    itxn_field AssetReceiver
+    pushint 4 // axfer
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    txn FirstValid
+    itob
+    bytec_0 // 0x6c76
+    swap
+    box_put
+    retsub
+
+
+// smart_contracts.ai_registry.contract.AiRegistry.issue_opt_in(asset_id: uint64, agent_p_key: bytes, signature: bytes) -> void:
+issue_opt_in:
+    proto 3 0
+    pushint 2000 // 2000
+    intc_0 // 0
+    callsub ensure_budget
+    bytec_0 // 0x6c76
+    box_len
+    bury 1
+    bz issue_opt_in_after_if_else@2
+    bytec_0 // 0x6c76
+    box_get
+    swap
+    btoi
+    swap
+    assert // check self.last_valid exists
+    txn FirstValid
+    <
+    assert
+
+issue_opt_in_after_if_else@2:
+    frame_dig -2
+    pushint 2 // 2
+    intc_0 // 0
+    txn FirstValid
+    callsub _verify_agent_permissions
+    frame_dig -3
+    itob
+    txn FirstValid
+    itob
+    concat
+    frame_dig -1
+    frame_dig -2
+    ed25519verify_bare
+    assert // Invalid signature
+    itxn_begin
+    global CurrentApplicationAddress
+    frame_dig -3
+    itxn_field XferAsset
+    intc_0 // 0
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    pushint 4 // axfer
+    itxn_field TypeEnum
+    intc 4 // 100000
+    itxn_field Fee
+    itxn_submit
+    txn FirstValid
+    itob
     bytec_0 // 0x6c76
     swap
     box_put

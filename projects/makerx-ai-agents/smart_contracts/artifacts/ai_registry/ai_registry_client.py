@@ -19,7 +19,7 @@ from algosdk.v2client.models import SimulateTraceConfig
 import algokit_utils
 from algokit_utils import AlgorandClient as _AlgoKitAlgorandClient
 
-_APP_SPEC_JSON = r"""{"arcs": [22, 28], "bareActions": {"call": [], "create": ["NoOp"]}, "methods": [{"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "uint64", "name": "amount"}, {"type": "account", "name": "receiver"}, {"type": "string", "name": "agent_name"}, {"type": "byte[]", "name": "agent_p_key"}, {"type": "byte[]", "name": "signature"}, {"type": "uint64", "name": "first_valid_round"}], "name": "issue_payment", "returns": {"type": "void"}, "events": [], "readonly": false, "recommendations": {}}], "name": "AiRegistry", "state": {"keys": {"box": {"last_valid": {"key": "bHY=", "keyType": "AVMBytes", "valueType": "AVMUint64"}}, "global": {}, "local": {}}, "maps": {"box": {}, "global": {}, "local": {}}, "schema": {"global": {"bytes": 0, "ints": 0}, "local": {"bytes": 0, "ints": 0}}}, "structs": {}, "byteCode": {"approval": "CiACAQAmAgJsdgMGgQExG0EAO4AEDU6FtzYaAI4BAAIjQzEZFEQxGEQ2GgEXNhoCF8AcNhoDVwIANhoEVwIANhoFVwIANhoGF4gADSJDMRlA/80xGBREIkOKBgCB9g4yDA1BABaxgQayEIEFshkpsh4psh8jsgGzQv/hKL1FAUEACii+TBdMRIv/DESL+haL+1CL/FCL/xZMSwFQi/6L/YREsYv6sgiL+7IHIrIQgaCNBrIBsyhMv4k=", "clear": "CoEBQw=="}, "compilerInfo": {"compiler": "puya", "compilerVersion": {"major": 4, "minor": 6, "patch": 1}}, "events": [], "networks": {}, "source": {"approval": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBzbWFydF9jb250cmFjdHMuYWlfcmVnaXN0cnkuY29udHJhY3QuQWlSZWdpc3RyeS5fX2FsZ29weV9lbnRyeXBvaW50X3dpdGhfaW5pdCgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxIDAKICAgIGJ5dGVjYmxvY2sgMHg2Yzc2IDB4MDY4MTAxCiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9iYXJlX3JvdXRpbmdANgogICAgcHVzaGJ5dGVzIDB4MGQ0ZTg1YjcgLy8gbWV0aG9kICJpc3N1ZV9wYXltZW50KHVpbnQ2NCxhY2NvdW50LHN0cmluZyxieXRlW10sYnl0ZVtdLHVpbnQ2NCl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9pc3N1ZV9wYXltZW50X3JvdXRlQDUKCm1haW5fYWZ0ZXJfaWZfZWxzZUA4OgogICAgaW50Y18xIC8vIDAKICAgIHJldHVybgoKbWFpbl9pc3N1ZV9wYXltZW50X3JvdXRlQDU6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGJ0b2kKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDIKICAgIGJ0b2kKICAgIHR4bmFzIEFjY291bnRzCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAzCiAgICBleHRyYWN0IDIgMAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNAogICAgZXh0cmFjdCAyIDAKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDUKICAgIGV4dHJhY3QgMiAwCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyA2CiAgICBidG9pCiAgICBjYWxsc3ViIGlzc3VlX3BheW1lbnQKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fYmFyZV9yb3V0aW5nQDY6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBibnogbWFpbl9hZnRlcl9pZl9lbHNlQDgKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIGNyZWF0aW5nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzLmFpX3JlZ2lzdHJ5LmNvbnRyYWN0LkFpUmVnaXN0cnkuaXNzdWVfcGF5bWVudChhbW91bnQ6IHVpbnQ2NCwgcmVjZWl2ZXI6IGJ5dGVzLCBhZ2VudF9uYW1lOiBieXRlcywgYWdlbnRfcF9rZXk6IGJ5dGVzLCBzaWduYXR1cmU6IGJ5dGVzLCBmaXJzdF92YWxpZF9yb3VuZDogdWludDY0KSAtPiB2b2lkOgppc3N1ZV9wYXltZW50OgogICAgcHJvdG8gNiAwCgppc3N1ZV9wYXltZW50X3doaWxlX3RvcEA1OgogICAgcHVzaGludCAxOTEwIC8vIDE5MTAKICAgIGdsb2JhbCBPcGNvZGVCdWRnZXQKICAgID4KICAgIGJ6IGlzc3VlX3BheW1lbnRfYWZ0ZXJfd2hpbGVAMTAKICAgIGl0eG5fYmVnaW4KICAgIHB1c2hpbnQgNiAvLyBhcHBsCiAgICBpdHhuX2ZpZWxkIFR5cGVFbnVtCiAgICBwdXNoaW50IDUgLy8gRGVsZXRlQXBwbGljYXRpb24KICAgIGl0eG5fZmllbGQgT25Db21wbGV0aW9uCiAgICBieXRlY18xIC8vIDB4MDY4MTAxCiAgICBpdHhuX2ZpZWxkIEFwcHJvdmFsUHJvZ3JhbQogICAgYnl0ZWNfMSAvLyAweDA2ODEwMQogICAgaXR4bl9maWVsZCBDbGVhclN0YXRlUHJvZ3JhbQogICAgaW50Y18xIC8vIDAKICAgIGl0eG5fZmllbGQgRmVlCiAgICBpdHhuX3N1Ym1pdAogICAgYiBpc3N1ZV9wYXltZW50X3doaWxlX3RvcEA1Cgppc3N1ZV9wYXltZW50X2FmdGVyX3doaWxlQDEwOgogICAgYnl0ZWNfMCAvLyAweDZjNzYKICAgIGJveF9sZW4KICAgIGJ1cnkgMQogICAgYnogaXNzdWVfcGF5bWVudF9hZnRlcl9pZl9lbHNlQDIKICAgIGJ5dGVjXzAgLy8gMHg2Yzc2CiAgICBib3hfZ2V0CiAgICBzd2FwCiAgICBidG9pCiAgICBzd2FwCiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi5sYXN0X3ZhbGlkIGV4aXN0cwogICAgZnJhbWVfZGlnIC0xCiAgICA8CiAgICBhc3NlcnQKCmlzc3VlX3BheW1lbnRfYWZ0ZXJfaWZfZWxzZUAyOgogICAgZnJhbWVfZGlnIC02CiAgICBpdG9iCiAgICBmcmFtZV9kaWcgLTUKICAgIGNvbmNhdAogICAgZnJhbWVfZGlnIC00CiAgICBjb25jYXQKICAgIGZyYW1lX2RpZyAtMQogICAgaXRvYgogICAgc3dhcAogICAgZGlnIDEKICAgIGNvbmNhdAogICAgZnJhbWVfZGlnIC0yCiAgICBmcmFtZV9kaWcgLTMKICAgIGVkMjU1MTl2ZXJpZnlfYmFyZQogICAgYXNzZXJ0IC8vIEludmFsaWQgc2lnbmF0dXJlCiAgICBpdHhuX2JlZ2luCiAgICBmcmFtZV9kaWcgLTYKICAgIGl0eG5fZmllbGQgQW1vdW50CiAgICBmcmFtZV9kaWcgLTUKICAgIGl0eG5fZmllbGQgUmVjZWl2ZXIKICAgIGludGNfMCAvLyBwYXkKICAgIGl0eG5fZmllbGQgVHlwZUVudW0KICAgIHB1c2hpbnQgMTAwMDAwIC8vIDEwMDAwMAogICAgaXR4bl9maWVsZCBGZWUKICAgIGl0eG5fc3VibWl0CiAgICBieXRlY18wIC8vIDB4NmM3NgogICAgc3dhcAogICAgYm94X3B1dAogICAgcmV0c3ViCg==", "clear": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"}, "sourceInfo": {"approval": {"pcOffsetMethod": "none", "sourceInfo": [{"pc": [161], "errorMessage": "Invalid signature"}, {"pc": [37], "errorMessage": "OnCompletion is not NoOp"}, {"pc": [86], "errorMessage": "can only call when creating"}, {"pc": [40], "errorMessage": "can only call when not creating"}, {"pc": [135], "errorMessage": "check self.last_valid exists"}]}, "clear": {"pcOffsetMethod": "none", "sourceInfo": []}}, "templateVariables": {}}"""
+_APP_SPEC_JSON = r"""{"arcs": [22, 28], "bareActions": {"call": [], "create": ["NoOp"]}, "methods": [{"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "account", "name": "lsig_address"}, {"type": "account", "name": "admin_address"}], "name": "bootstrap", "returns": {"type": "void"}, "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "byte[]", "name": "agent_p_key"}, {"type": "uint64", "name": "permissions"}, {"type": "uint64", "name": "max_amount"}, {"type": "uint64", "name": "valid_until_round"}], "name": "register_agent", "returns": {"type": "void"}, "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "uint64", "name": "amount"}, {"type": "account", "name": "receiver"}, {"type": "string", "name": "agent_name"}, {"type": "byte[]", "name": "agent_p_key"}, {"type": "byte[]", "name": "signature"}], "name": "issue_payment", "returns": {"type": "void"}, "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "account", "name": "receiver"}, {"type": "uint64", "name": "amount"}, {"type": "uint64", "name": "asset_id"}, {"type": "byte[]", "name": "agent_p_key"}, {"type": "byte[]", "name": "signature"}], "name": "issue_axfer", "returns": {"type": "void"}, "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "uint64", "name": "asset_id"}, {"type": "byte[]", "name": "agent_p_key"}, {"type": "byte[]", "name": "signature"}], "name": "issue_opt_in", "returns": {"type": "void"}, "events": [], "readonly": false, "recommendations": {}}], "name": "AiRegistry", "state": {"keys": {"box": {"last_valid": {"key": "bHY=", "keyType": "AVMBytes", "valueType": "AVMUint64"}}, "global": {"lsig_addr": {"key": "bHNpZ19hZGRy", "keyType": "AVMString", "valueType": "AVMBytes"}, "admin": {"key": "YWRtaW4=", "keyType": "AVMString", "valueType": "AVMBytes"}}, "local": {}}, "maps": {"box": {"agent_permissions": {"keyType": "AVMBytes", "valueType": "AVMBytes", "prefix": "YXA="}}, "global": {}, "local": {}}, "schema": {"global": {"bytes": 2, "ints": 0}, "local": {"bytes": 0, "ints": 0}}}, "structs": {}, "byteCode": {"approval": "CiAFAAEIEKCNBiYFAmx2CWxzaWdfYWRkcgVhZG1pbgMGgQECYXAxGEAACCkyA2cqMgNnMRtBAMyCBQTXXATmBCepjfcEUnM0aQQrzwT4BBEJh4g2GgCOBQCKAGwARAAeAAIiQzEZFEQxGEQ2GgEXNhoCVwIANhoDVwIAiAIGI0MxGRREMRhENhoBF8AcNhoCFzYaAxc2GgRXAgA2GgVXAgCIAYojQzEZFEQxGEQ2GgEXNhoCF8AcNhoDVwIANhoEVwIANhoFVwIAiAESI0MxGRREMRhENhoBVwIANhoCFzYaAxc2GgQXiAByI0MxGRREMRhENhoBF8AcNhoCF8AciABGI0MxGUD/WTEYFEQjQ4oCAIv+gQoIiwAyDA1BACixgQayEIEFshkrsh4rsh+L/40CAAsABLNC/90yALIBQv/1IrIBQv/viYoCACIpZUQyAxJEKYv+ZyqL/2eJigQAMQAiKmVEEkSL/RaL/hZQi/8WUCcEi/xQSbxITL+JigQAMQAiKWVEEkQnBIv8UEm9RQFEvkRJFSRLAQ8kSwJPAk1LAiJLAlIXJUsDDyVLBE8CTUsETwNLAlIXgRhLBA+BGE8FTwJNTwRPA08CUhdPAov9U0SL/k8CDkSL/w9EiYoFAIHsDiKI/ycovUUBQQAKKL5MF0xEMQIMRIv+Iov7MQKI/3qL+xaL/FCL/VAxAhZQi/+L/oREsYv7sgiL/LIHI7IQIQSyAbMxAhYoTL+JigUAgdAPIoj+1yi9RQFBAAoovkwXTEQxAgxEi/4ji/wxAoj/Kov8Fov7TFCL/RZQMQIWUIv/i/6ERLGL/bIRi/yyEov7shSBBLIQIrIBszECFihMv4mKAwCB0A8iiP6BKL1FAUEACii+TBdMRDECDESL/oECIjECiP7Ui/0WMQIWUIv/i/6ERLEyCov9shEishKyFIEEshAhBLIBszECFihMv4k=", "clear": "CoEBQw=="}, "compilerInfo": {"compiler": "puya", "compilerVersion": {"major": 4, "minor": 6, "patch": 1}}, "events": [], "networks": {}, "source": {"approval": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBzbWFydF9jb250cmFjdHMuYWlfcmVnaXN0cnkuY29udHJhY3QuQWlSZWdpc3RyeS5fX2FsZ29weV9lbnRyeXBvaW50X3dpdGhfaW5pdCgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAwIDEgOCAxNiAxMDAwMDAKICAgIGJ5dGVjYmxvY2sgMHg2Yzc2ICJsc2lnX2FkZHIiICJhZG1pbiIgMHgwNjgxMDEgMHg2MTcwCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYm56IG1haW5fYWZ0ZXJfaWZfZWxzZUAyCiAgICBieXRlY18xIC8vICJsc2lnX2FkZHIiCiAgICBnbG9iYWwgWmVyb0FkZHJlc3MKICAgIGFwcF9nbG9iYWxfcHV0CiAgICBieXRlY18yIC8vICJhZG1pbiIKICAgIGdsb2JhbCBaZXJvQWRkcmVzcwogICAgYXBwX2dsb2JhbF9wdXQKCm1haW5fYWZ0ZXJfaWZfZWxzZUAyOgogICAgdHhuIE51bUFwcEFyZ3MKICAgIGJ6IG1haW5fYmFyZV9yb3V0aW5nQDEwCiAgICBwdXNoYnl0ZXNzIDB4ZDc1YzA0ZTYgMHgyN2E5OGRmNyAweDUyNzMzNDY5IDB4MmJjZjA0ZjggMHgxMTA5ODc4OCAvLyBtZXRob2QgImJvb3RzdHJhcChhY2NvdW50LGFjY291bnQpdm9pZCIsIG1ldGhvZCAicmVnaXN0ZXJfYWdlbnQoYnl0ZVtdLHVpbnQ2NCx1aW50NjQsdWludDY0KXZvaWQiLCBtZXRob2QgImlzc3VlX3BheW1lbnQodWludDY0LGFjY291bnQsc3RyaW5nLGJ5dGVbXSxieXRlW10pdm9pZCIsIG1ldGhvZCAiaXNzdWVfYXhmZXIoYWNjb3VudCx1aW50NjQsdWludDY0LGJ5dGVbXSxieXRlW10pdm9pZCIsIG1ldGhvZCAiaXNzdWVfb3B0X2luKHVpbnQ2NCxieXRlW10sYnl0ZVtdKXZvaWQiCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBtYWluX2Jvb3RzdHJhcF9yb3V0ZUA1IG1haW5fcmVnaXN0ZXJfYWdlbnRfcm91dGVANiBtYWluX2lzc3VlX3BheW1lbnRfcm91dGVANyBtYWluX2lzc3VlX2F4ZmVyX3JvdXRlQDggbWFpbl9pc3N1ZV9vcHRfaW5fcm91dGVAOQoKbWFpbl9hZnRlcl9pZl9lbHNlQDEyOgogICAgaW50Y18wIC8vIDAKICAgIHJldHVybgoKbWFpbl9pc3N1ZV9vcHRfaW5fcm91dGVAOToKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgZXh0cmFjdCAyIDAKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDMKICAgIGV4dHJhY3QgMiAwCiAgICBjYWxsc3ViIGlzc3VlX29wdF9pbgogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgoKbWFpbl9pc3N1ZV9heGZlcl9yb3V0ZUA4OgogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBidG9pCiAgICB0eG5hcyBBY2NvdW50cwogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMwogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNAogICAgZXh0cmFjdCAyIDAKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDUKICAgIGV4dHJhY3QgMiAwCiAgICBjYWxsc3ViIGlzc3VlX2F4ZmVyCiAgICBpbnRjXzEgLy8gMQogICAgcmV0dXJuCgptYWluX2lzc3VlX3BheW1lbnRfcm91dGVANzoKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgYnRvaQogICAgdHhuYXMgQWNjb3VudHMKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDMKICAgIGV4dHJhY3QgMiAwCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyA0CiAgICBleHRyYWN0IDIgMAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNQogICAgZXh0cmFjdCAyIDAKICAgIGNhbGxzdWIgaXNzdWVfcGF5bWVudAogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgoKbWFpbl9yZWdpc3Rlcl9hZ2VudF9yb3V0ZUA2OgogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBleHRyYWN0IDIgMAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMwogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNAogICAgYnRvaQogICAgY2FsbHN1YiByZWdpc3Rlcl9hZ2VudAogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgoKbWFpbl9ib290c3RyYXBfcm91dGVANToKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgYnRvaQogICAgdHhuYXMgQWNjb3VudHMKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDIKICAgIGJ0b2kKICAgIHR4bmFzIEFjY291bnRzCiAgICBjYWxsc3ViIGJvb3RzdHJhcAogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgoKbWFpbl9iYXJlX3JvdXRpbmdAMTA6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBibnogbWFpbl9hZnRlcl9pZl9lbHNlQDEyCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBjcmVhdGluZwogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgoKCi8vIF9wdXlhX2xpYi51dGlsLmVuc3VyZV9idWRnZXQocmVxdWlyZWRfYnVkZ2V0OiB1aW50NjQsIGZlZV9zb3VyY2U6IHVpbnQ2NCkgLT4gdm9pZDoKZW5zdXJlX2J1ZGdldDoKICAgIHByb3RvIDIgMAogICAgZnJhbWVfZGlnIC0yCiAgICBwdXNoaW50IDEwIC8vIDEwCiAgICArCgplbnN1cmVfYnVkZ2V0X3doaWxlX3RvcEAxOgogICAgZnJhbWVfZGlnIDAKICAgIGdsb2JhbCBPcGNvZGVCdWRnZXQKICAgID4KICAgIGJ6IGVuc3VyZV9idWRnZXRfYWZ0ZXJfd2hpbGVANwogICAgaXR4bl9iZWdpbgogICAgcHVzaGludCA2IC8vIGFwcGwKICAgIGl0eG5fZmllbGQgVHlwZUVudW0KICAgIHB1c2hpbnQgNSAvLyBEZWxldGVBcHBsaWNhdGlvbgogICAgaXR4bl9maWVsZCBPbkNvbXBsZXRpb24KICAgIGJ5dGVjXzMgLy8gMHgwNjgxMDEKICAgIGl0eG5fZmllbGQgQXBwcm92YWxQcm9ncmFtCiAgICBieXRlY18zIC8vIDB4MDY4MTAxCiAgICBpdHhuX2ZpZWxkIENsZWFyU3RhdGVQcm9ncmFtCiAgICBmcmFtZV9kaWcgLTEKICAgIHN3aXRjaCBlbnN1cmVfYnVkZ2V0X3N3aXRjaF9jYXNlXzBAMyBlbnN1cmVfYnVkZ2V0X3N3aXRjaF9jYXNlXzFANAoKZW5zdXJlX2J1ZGdldF9zd2l0Y2hfY2FzZV9uZXh0QDY6CiAgICBpdHhuX3N1Ym1pdAogICAgYiBlbnN1cmVfYnVkZ2V0X3doaWxlX3RvcEAxCgplbnN1cmVfYnVkZ2V0X3N3aXRjaF9jYXNlXzFANDoKICAgIGdsb2JhbCBNaW5UeG5GZWUKICAgIGl0eG5fZmllbGQgRmVlCiAgICBiIGVuc3VyZV9idWRnZXRfc3dpdGNoX2Nhc2VfbmV4dEA2CgplbnN1cmVfYnVkZ2V0X3N3aXRjaF9jYXNlXzBAMzoKICAgIGludGNfMCAvLyAwCiAgICBpdHhuX2ZpZWxkIEZlZQogICAgYiBlbnN1cmVfYnVkZ2V0X3N3aXRjaF9jYXNlX25leHRANgoKZW5zdXJlX2J1ZGdldF9hZnRlcl93aGlsZUA3OgogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLmFpX3JlZ2lzdHJ5LmNvbnRyYWN0LkFpUmVnaXN0cnkuYm9vdHN0cmFwKGxzaWdfYWRkcmVzczogYnl0ZXMsIGFkbWluX2FkZHJlc3M6IGJ5dGVzKSAtPiB2b2lkOgpib290c3RyYXA6CiAgICBwcm90byAyIDAKICAgIGludGNfMCAvLyAwCiAgICBieXRlY18xIC8vICJsc2lnX2FkZHIiCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYubHNpZ19hZGRyIGV4aXN0cwogICAgZ2xvYmFsIFplcm9BZGRyZXNzCiAgICA9PQogICAgYXNzZXJ0IC8vIEFscmVhZHkgYm9vdHN0cmFwcGVkCiAgICBieXRlY18xIC8vICJsc2lnX2FkZHIiCiAgICBmcmFtZV9kaWcgLTIKICAgIGFwcF9nbG9iYWxfcHV0CiAgICBieXRlY18yIC8vICJhZG1pbiIKICAgIGZyYW1lX2RpZyAtMQogICAgYXBwX2dsb2JhbF9wdXQKICAgIHJldHN1YgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5haV9yZWdpc3RyeS5jb250cmFjdC5BaVJlZ2lzdHJ5LnJlZ2lzdGVyX2FnZW50KGFnZW50X3Bfa2V5OiBieXRlcywgcGVybWlzc2lvbnM6IHVpbnQ2NCwgbWF4X2Ftb3VudDogdWludDY0LCB2YWxpZF91bnRpbF9yb3VuZDogdWludDY0KSAtPiB2b2lkOgpyZWdpc3Rlcl9hZ2VudDoKICAgIHByb3RvIDQgMAogICAgdHhuIFNlbmRlcgogICAgaW50Y18wIC8vIDAKICAgIGJ5dGVjXzIgLy8gImFkbWluIgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLmFkbWluIGV4aXN0cwogICAgPT0KICAgIGFzc2VydCAvLyBPbmx5IGFkbWluIGNhbiByZWdpc3RlciBhZ2VudHMKICAgIGZyYW1lX2RpZyAtMwogICAgaXRvYgogICAgZnJhbWVfZGlnIC0yCiAgICBpdG9iCiAgICBjb25jYXQKICAgIGZyYW1lX2RpZyAtMQogICAgaXRvYgogICAgY29uY2F0CiAgICBieXRlYyA0IC8vIDB4NjE3MAogICAgZnJhbWVfZGlnIC00CiAgICBjb25jYXQKICAgIGR1cAogICAgYm94X2RlbAogICAgcG9wCiAgICBzd2FwCiAgICBib3hfcHV0CiAgICByZXRzdWIKCgovLyBzbWFydF9jb250cmFjdHMuYWlfcmVnaXN0cnkuY29udHJhY3QuQWlSZWdpc3RyeS5fdmVyaWZ5X2FnZW50X3Blcm1pc3Npb25zKGFnZW50X3Bfa2V5OiBieXRlcywgb3BlcmF0aW9uX2JpdDogdWludDY0LCBhbW91bnQ6IHVpbnQ2NCwgY3VycmVudF9yb3VuZDogdWludDY0KSAtPiB2b2lkOgpfdmVyaWZ5X2FnZW50X3Blcm1pc3Npb25zOgogICAgcHJvdG8gNCAwCiAgICB0eG4gU2VuZGVyCiAgICBpbnRjXzAgLy8gMAogICAgYnl0ZWNfMSAvLyAibHNpZ19hZGRyIgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLmxzaWdfYWRkciBleGlzdHMKICAgID09CiAgICBhc3NlcnQgLy8gT25seSBMU0lHIGNhbiBjYWxsIHRoaXMgbWV0aG9kCiAgICBieXRlYyA0IC8vIDB4NjE3MAogICAgZnJhbWVfZGlnIC00CiAgICBjb25jYXQKICAgIGR1cAogICAgYm94X2xlbgogICAgYnVyeSAxCiAgICBhc3NlcnQgLy8gQWdlbnQgbm90IHJlZ2lzdGVyZWQKICAgIGJveF9nZXQKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLmFnZW50X3Blcm1pc3Npb25zIGVudHJ5IGV4aXN0cwogICAgZHVwCiAgICBsZW4KICAgIGludGNfMiAvLyA4CiAgICBkaWcgMQogICAgPj0KICAgIGludGNfMiAvLyA4CiAgICBkaWcgMgogICAgdW5jb3ZlciAyCiAgICBzZWxlY3QKICAgIGRpZyAyCiAgICBpbnRjXzAgLy8gMAogICAgZGlnIDIKICAgIHN1YnN0cmluZzMKICAgIGJ0b2kKICAgIGludGNfMyAvLyAxNgogICAgZGlnIDMKICAgID49CiAgICBpbnRjXzMgLy8gMTYKICAgIGRpZyA0CiAgICB1bmNvdmVyIDIKICAgIHNlbGVjdAogICAgZGlnIDQKICAgIHVuY292ZXIgMwogICAgZGlnIDIKICAgIHN1YnN0cmluZzMKICAgIGJ0b2kKICAgIHB1c2hpbnQgMjQgLy8gMjQKICAgIGRpZyA0CiAgICA+PQogICAgcHVzaGludCAyNCAvLyAyNAogICAgdW5jb3ZlciA1CiAgICB1bmNvdmVyIDIKICAgIHNlbGVjdAogICAgdW5jb3ZlciA0CiAgICB1bmNvdmVyIDMKICAgIHVuY292ZXIgMgogICAgc3Vic3RyaW5nMwogICAgYnRvaQogICAgdW5jb3ZlciAyCiAgICBmcmFtZV9kaWcgLTMKICAgIGdldGJpdAogICAgYXNzZXJ0IC8vIE9wZXJhdGlvbiBub3QgYWxsb3dlZCBmb3IgdGhpcyBhZ2VudAogICAgZnJhbWVfZGlnIC0yCiAgICB1bmNvdmVyIDIKICAgIDw9CiAgICBhc3NlcnQgLy8gQW1vdW50IGV4Y2VlZHMgYWdlbnQncyBsaW1pdAogICAgZnJhbWVfZGlnIC0xCiAgICA+PQogICAgYXNzZXJ0IC8vIEFnZW50IGF1dGhvcml6YXRpb24gZXhwaXJlZAogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLmFpX3JlZ2lzdHJ5LmNvbnRyYWN0LkFpUmVnaXN0cnkuaXNzdWVfcGF5bWVudChhbW91bnQ6IHVpbnQ2NCwgcmVjZWl2ZXI6IGJ5dGVzLCBhZ2VudF9uYW1lOiBieXRlcywgYWdlbnRfcF9rZXk6IGJ5dGVzLCBzaWduYXR1cmU6IGJ5dGVzKSAtPiB2b2lkOgppc3N1ZV9wYXltZW50OgogICAgcHJvdG8gNSAwCiAgICBwdXNoaW50IDE5MDAgLy8gMTkwMAogICAgaW50Y18wIC8vIDAKICAgIGNhbGxzdWIgZW5zdXJlX2J1ZGdldAogICAgYnl0ZWNfMCAvLyAweDZjNzYKICAgIGJveF9sZW4KICAgIGJ1cnkgMQogICAgYnogaXNzdWVfcGF5bWVudF9hZnRlcl9pZl9lbHNlQDIKICAgIGJ5dGVjXzAgLy8gMHg2Yzc2CiAgICBib3hfZ2V0CiAgICBzd2FwCiAgICBidG9pCiAgICBzd2FwCiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi5sYXN0X3ZhbGlkIGV4aXN0cwogICAgdHhuIEZpcnN0VmFsaWQKICAgIDwKICAgIGFzc2VydAoKaXNzdWVfcGF5bWVudF9hZnRlcl9pZl9lbHNlQDI6CiAgICBmcmFtZV9kaWcgLTIKICAgIGludGNfMCAvLyAwCiAgICBmcmFtZV9kaWcgLTUKICAgIHR4biBGaXJzdFZhbGlkCiAgICBjYWxsc3ViIF92ZXJpZnlfYWdlbnRfcGVybWlzc2lvbnMKICAgIGZyYW1lX2RpZyAtNQogICAgaXRvYgogICAgZnJhbWVfZGlnIC00CiAgICBjb25jYXQKICAgIGZyYW1lX2RpZyAtMwogICAgY29uY2F0CiAgICB0eG4gRmlyc3RWYWxpZAogICAgaXRvYgogICAgY29uY2F0CiAgICBmcmFtZV9kaWcgLTEKICAgIGZyYW1lX2RpZyAtMgogICAgZWQyNTUxOXZlcmlmeV9iYXJlCiAgICBhc3NlcnQgLy8gSW52YWxpZCBzaWduYXR1cmUKICAgIGl0eG5fYmVnaW4KICAgIGZyYW1lX2RpZyAtNQogICAgaXR4bl9maWVsZCBBbW91bnQKICAgIGZyYW1lX2RpZyAtNAogICAgaXR4bl9maWVsZCBSZWNlaXZlcgogICAgaW50Y18xIC8vIHBheQogICAgaXR4bl9maWVsZCBUeXBlRW51bQogICAgaW50YyA0IC8vIDEwMDAwMAogICAgaXR4bl9maWVsZCBGZWUKICAgIGl0eG5fc3VibWl0CiAgICB0eG4gRmlyc3RWYWxpZAogICAgaXRvYgogICAgYnl0ZWNfMCAvLyAweDZjNzYKICAgIHN3YXAKICAgIGJveF9wdXQKICAgIHJldHN1YgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5haV9yZWdpc3RyeS5jb250cmFjdC5BaVJlZ2lzdHJ5Lmlzc3VlX2F4ZmVyKHJlY2VpdmVyOiBieXRlcywgYW1vdW50OiB1aW50NjQsIGFzc2V0X2lkOiB1aW50NjQsIGFnZW50X3Bfa2V5OiBieXRlcywgc2lnbmF0dXJlOiBieXRlcykgLT4gdm9pZDoKaXNzdWVfYXhmZXI6CiAgICBwcm90byA1IDAKICAgIHB1c2hpbnQgMjAwMCAvLyAyMDAwCiAgICBpbnRjXzAgLy8gMAogICAgY2FsbHN1YiBlbnN1cmVfYnVkZ2V0CiAgICBieXRlY18wIC8vIDB4NmM3NgogICAgYm94X2xlbgogICAgYnVyeSAxCiAgICBieiBpc3N1ZV9heGZlcl9hZnRlcl9pZl9lbHNlQDIKICAgIGJ5dGVjXzAgLy8gMHg2Yzc2CiAgICBib3hfZ2V0CiAgICBzd2FwCiAgICBidG9pCiAgICBzd2FwCiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi5sYXN0X3ZhbGlkIGV4aXN0cwogICAgdHhuIEZpcnN0VmFsaWQKICAgIDwKICAgIGFzc2VydAoKaXNzdWVfYXhmZXJfYWZ0ZXJfaWZfZWxzZUAyOgogICAgZnJhbWVfZGlnIC0yCiAgICBpbnRjXzEgLy8gMQogICAgZnJhbWVfZGlnIC00CiAgICB0eG4gRmlyc3RWYWxpZAogICAgY2FsbHN1YiBfdmVyaWZ5X2FnZW50X3Blcm1pc3Npb25zCiAgICBmcmFtZV9kaWcgLTQKICAgIGl0b2IKICAgIGZyYW1lX2RpZyAtNQogICAgc3dhcAogICAgY29uY2F0CiAgICBmcmFtZV9kaWcgLTMKICAgIGl0b2IKICAgIGNvbmNhdAogICAgdHhuIEZpcnN0VmFsaWQKICAgIGl0b2IKICAgIGNvbmNhdAogICAgZnJhbWVfZGlnIC0xCiAgICBmcmFtZV9kaWcgLTIKICAgIGVkMjU1MTl2ZXJpZnlfYmFyZQogICAgYXNzZXJ0IC8vIEludmFsaWQgc2lnbmF0dXJlCiAgICBpdHhuX2JlZ2luCiAgICBmcmFtZV9kaWcgLTMKICAgIGl0eG5fZmllbGQgWGZlckFzc2V0CiAgICBmcmFtZV9kaWcgLTQKICAgIGl0eG5fZmllbGQgQXNzZXRBbW91bnQKICAgIGZyYW1lX2RpZyAtNQogICAgaXR4bl9maWVsZCBBc3NldFJlY2VpdmVyCiAgICBwdXNoaW50IDQgLy8gYXhmZXIKICAgIGl0eG5fZmllbGQgVHlwZUVudW0KICAgIGludGNfMCAvLyAwCiAgICBpdHhuX2ZpZWxkIEZlZQogICAgaXR4bl9zdWJtaXQKICAgIHR4biBGaXJzdFZhbGlkCiAgICBpdG9iCiAgICBieXRlY18wIC8vIDB4NmM3NgogICAgc3dhcAogICAgYm94X3B1dAogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLmFpX3JlZ2lzdHJ5LmNvbnRyYWN0LkFpUmVnaXN0cnkuaXNzdWVfb3B0X2luKGFzc2V0X2lkOiB1aW50NjQsIGFnZW50X3Bfa2V5OiBieXRlcywgc2lnbmF0dXJlOiBieXRlcykgLT4gdm9pZDoKaXNzdWVfb3B0X2luOgogICAgcHJvdG8gMyAwCiAgICBwdXNoaW50IDIwMDAgLy8gMjAwMAogICAgaW50Y18wIC8vIDAKICAgIGNhbGxzdWIgZW5zdXJlX2J1ZGdldAogICAgYnl0ZWNfMCAvLyAweDZjNzYKICAgIGJveF9sZW4KICAgIGJ1cnkgMQogICAgYnogaXNzdWVfb3B0X2luX2FmdGVyX2lmX2Vsc2VAMgogICAgYnl0ZWNfMCAvLyAweDZjNzYKICAgIGJveF9nZXQKICAgIHN3YXAKICAgIGJ0b2kKICAgIHN3YXAKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLmxhc3RfdmFsaWQgZXhpc3RzCiAgICB0eG4gRmlyc3RWYWxpZAogICAgPAogICAgYXNzZXJ0Cgppc3N1ZV9vcHRfaW5fYWZ0ZXJfaWZfZWxzZUAyOgogICAgZnJhbWVfZGlnIC0yCiAgICBwdXNoaW50IDIgLy8gMgogICAgaW50Y18wIC8vIDAKICAgIHR4biBGaXJzdFZhbGlkCiAgICBjYWxsc3ViIF92ZXJpZnlfYWdlbnRfcGVybWlzc2lvbnMKICAgIGZyYW1lX2RpZyAtMwogICAgaXRvYgogICAgdHhuIEZpcnN0VmFsaWQKICAgIGl0b2IKICAgIGNvbmNhdAogICAgZnJhbWVfZGlnIC0xCiAgICBmcmFtZV9kaWcgLTIKICAgIGVkMjU1MTl2ZXJpZnlfYmFyZQogICAgYXNzZXJ0IC8vIEludmFsaWQgc2lnbmF0dXJlCiAgICBpdHhuX2JlZ2luCiAgICBnbG9iYWwgQ3VycmVudEFwcGxpY2F0aW9uQWRkcmVzcwogICAgZnJhbWVfZGlnIC0zCiAgICBpdHhuX2ZpZWxkIFhmZXJBc3NldAogICAgaW50Y18wIC8vIDAKICAgIGl0eG5fZmllbGQgQXNzZXRBbW91bnQKICAgIGl0eG5fZmllbGQgQXNzZXRSZWNlaXZlcgogICAgcHVzaGludCA0IC8vIGF4ZmVyCiAgICBpdHhuX2ZpZWxkIFR5cGVFbnVtCiAgICBpbnRjIDQgLy8gMTAwMDAwCiAgICBpdHhuX2ZpZWxkIEZlZQogICAgaXR4bl9zdWJtaXQKICAgIHR4biBGaXJzdFZhbGlkCiAgICBpdG9iCiAgICBieXRlY18wIC8vIDB4NmM3NgogICAgc3dhcAogICAgYm94X3B1dAogICAgcmV0c3ViCg==", "clear": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"}, "sourceInfo": {"approval": {"pcOffsetMethod": "none", "sourceInfo": [{"pc": [476], "errorMessage": "Agent authorization expired"}, {"pc": [401], "errorMessage": "Agent not registered"}, {"pc": [338], "errorMessage": "Already bootstrapped"}, {"pc": [472], "errorMessage": "Amount exceeds agent's limit"}, {"pc": [533, 615, 693], "errorMessage": "Invalid signature"}, {"pc": [103, 131, 169, 209, 239], "errorMessage": "OnCompletion is not NoOp"}, {"pc": [391], "errorMessage": "Only LSIG can call this method"}, {"pc": [358], "errorMessage": "Only admin can register agents"}, {"pc": [466], "errorMessage": "Operation not allowed for this agent"}, {"pc": [268], "errorMessage": "can only call when creating"}, {"pc": [106, 134, 172, 212, 242], "errorMessage": "can only call when not creating"}, {"pc": [356], "errorMessage": "check self.admin exists"}, {"pc": [403], "errorMessage": "check self.agent_permissions entry exists"}, {"pc": [500, 580, 666], "errorMessage": "check self.last_valid exists"}, {"pc": [334, 389], "errorMessage": "check self.lsig_addr exists"}]}, "clear": {"pcOffsetMethod": "none", "sourceInfo": []}}, "templateVariables": {}}"""
 APP_SPEC = algokit_utils.Arc56Contract.from_json(_APP_SPEC_JSON)
 
 def _parse_abi_args(args: object | None = None) -> list[object] | None:
@@ -65,6 +65,28 @@ def _init_dataclass(cls: type, data: dict) -> object:
     return cls(**field_values)
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class BootstrapArgs:
+    """Dataclass for bootstrap arguments"""
+    lsig_address: str | bytes
+    admin_address: str | bytes
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "bootstrap(account,account)void"
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class RegisterAgentArgs:
+    """Dataclass for register_agent arguments"""
+    agent_p_key: bytes | str
+    permissions: int
+    max_amount: int
+    valid_until_round: int
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "register_agent(byte[],uint64,uint64,uint64)void"
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class IssuePaymentArgs:
     """Dataclass for issue_payment arguments"""
     amount: int
@@ -72,27 +94,102 @@ class IssuePaymentArgs:
     agent_name: str
     agent_p_key: bytes | str
     signature: bytes | str
-    first_valid_round: int
 
     @property
     def abi_method_signature(self) -> str:
-        return "issue_payment(uint64,account,string,byte[],byte[],uint64)void"
+        return "issue_payment(uint64,account,string,byte[],byte[])void"
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class IssueAxferArgs:
+    """Dataclass for issue_axfer arguments"""
+    receiver: str | bytes
+    amount: int
+    asset_id: int
+    agent_p_key: bytes | str
+    signature: bytes | str
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "issue_axfer(account,uint64,uint64,byte[],byte[])void"
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class IssueOptInArgs:
+    """Dataclass for issue_opt_in arguments"""
+    asset_id: int
+    agent_p_key: bytes | str
+    signature: bytes | str
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "issue_opt_in(uint64,byte[],byte[])void"
 
 
 class AiRegistryParams:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
-    def issue_payment(
+    def bootstrap(
         self,
-        args: tuple[int, str | bytes, str, bytes | str, bytes | str, int] | IssuePaymentArgs,
+        args: tuple[str | bytes, str | bytes] | BootstrapArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.AppCallMethodCallParams:
         method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "issue_payment(uint64,account,string,byte[],byte[],uint64)void",
+            "method": "bootstrap(account,account)void",
+            "args": method_args,
+        }))
+
+    def register_agent(
+        self,
+        args: tuple[bytes | str, int, int, int] | RegisterAgentArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "register_agent(byte[],uint64,uint64,uint64)void",
+            "args": method_args,
+        }))
+
+    def issue_payment(
+        self,
+        args: tuple[int, str | bytes, str, bytes | str, bytes | str] | IssuePaymentArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "issue_payment(uint64,account,string,byte[],byte[])void",
+            "args": method_args,
+        }))
+
+    def issue_axfer(
+        self,
+        args: tuple[str | bytes, int, int, bytes | str, bytes | str] | IssueAxferArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "issue_axfer(account,uint64,uint64,byte[],byte[])void",
+            "args": method_args,
+        }))
+
+    def issue_opt_in(
+        self,
+        args: tuple[int, bytes | str, bytes | str] | IssueOptInArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "issue_opt_in(uint64,byte[],byte[])void",
             "args": method_args,
         }))
 
@@ -111,16 +208,68 @@ class AiRegistryCreateTransactionParams:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
-    def issue_payment(
+    def bootstrap(
         self,
-        args: tuple[int, str | bytes, str, bytes | str, bytes | str, int] | IssuePaymentArgs,
+        args: tuple[str | bytes, str | bytes] | BootstrapArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> algokit_utils.BuiltTransactions:
         method_args = _parse_abi_args(args)
         params = params or algokit_utils.CommonAppCallParams()
         return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "issue_payment(uint64,account,string,byte[],byte[],uint64)void",
+            "method": "bootstrap(account,account)void",
+            "args": method_args,
+        }))
+
+    def register_agent(
+        self,
+        args: tuple[bytes | str, int, int, int] | RegisterAgentArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "register_agent(byte[],uint64,uint64,uint64)void",
+            "args": method_args,
+        }))
+
+    def issue_payment(
+        self,
+        args: tuple[int, str | bytes, str, bytes | str, bytes | str] | IssuePaymentArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "issue_payment(uint64,account,string,byte[],byte[])void",
+            "args": method_args,
+        }))
+
+    def issue_axfer(
+        self,
+        args: tuple[str | bytes, int, int, bytes | str, bytes | str] | IssueAxferArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "issue_axfer(account,uint64,uint64,byte[],byte[])void",
+            "args": method_args,
+        }))
+
+    def issue_opt_in(
+        self,
+        args: tuple[int, bytes | str, bytes | str] | IssueOptInArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "issue_opt_in(uint64,byte[],byte[])void",
             "args": method_args,
         }))
 
@@ -139,9 +288,9 @@ class AiRegistrySend:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
-    def issue_payment(
+    def bootstrap(
         self,
-        args: tuple[int, str | bytes, str, bytes | str, bytes | str, int] | IssuePaymentArgs,
+        args: tuple[str | bytes, str | bytes] | BootstrapArgs,
         params: algokit_utils.CommonAppCallParams | None = None,
         send_params: algokit_utils.SendParams | None = None
     ) -> algokit_utils.SendAppTransactionResult[None]:
@@ -149,7 +298,71 @@ class AiRegistrySend:
         params = params or algokit_utils.CommonAppCallParams()
         response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
-            "method": "issue_payment(uint64,account,string,byte[],byte[],uint64)void",
+            "method": "bootstrap(account,account)void",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
+
+    def register_agent(
+        self,
+        args: tuple[bytes | str, int, int, int] | RegisterAgentArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[None]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "register_agent(byte[],uint64,uint64,uint64)void",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
+
+    def issue_payment(
+        self,
+        args: tuple[int, str | bytes, str, bytes | str, bytes | str] | IssuePaymentArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[None]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "issue_payment(uint64,account,string,byte[],byte[])void",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
+
+    def issue_axfer(
+        self,
+        args: tuple[str | bytes, int, int, bytes | str, bytes | str] | IssueAxferArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[None]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "issue_axfer(account,uint64,uint64,byte[],byte[])void",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
+
+    def issue_opt_in(
+        self,
+        args: tuple[int, bytes | str, bytes | str] | IssueOptInArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[None]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "issue_opt_in(uint64,byte[],byte[])void",
             "args": method_args,
         }), send_params=send_params)
         parsed_response = response
@@ -166,6 +379,11 @@ class AiRegistrySend:
         )
 
 
+class GlobalStateValue(typing.TypedDict):
+    """Shape of global_state state key values"""
+    lsig_addr: bytes
+    admin: bytes
+
 class BoxStateValue(typing.TypedDict):
     """Shape of box state key values"""
     last_valid: int
@@ -177,11 +395,57 @@ class AiRegistryState:
         self.app_client = app_client
 
     @property
+    def global_state(
+        self
+    ) -> "_GlobalState":
+            """Methods to access global_state for the current app"""
+            return _GlobalState(self.app_client)
+
+    @property
     def box(
         self
     ) -> "_BoxState":
             """Methods to access box for the current app"""
             return _BoxState(self.app_client)
+
+class _GlobalState:
+    def __init__(self, app_client: algokit_utils.AppClient):
+        self.app_client = app_client
+        
+        # Pre-generated mapping of value types to their struct classes
+        self._struct_classes: dict[str, typing.Type[typing.Any]] = {}
+
+    def get_all(self) -> GlobalStateValue:
+        """Get all current keyed values from global_state state"""
+        result = self.app_client.state.global_state.get_all()
+        if not result:
+            return typing.cast(GlobalStateValue, {})
+
+        converted = {}
+        for key, value in result.items():
+            key_info = self.app_client.app_spec.state.keys.global_state.get(key)
+            struct_class = self._struct_classes.get(key_info.value_type) if key_info else None
+            converted[key] = (
+                _init_dataclass(struct_class, value) if struct_class and isinstance(value, dict)
+                else value
+            )
+        return typing.cast(GlobalStateValue, converted)
+
+    @property
+    def lsig_addr(self) -> bytes:
+        """Get the current value of the lsig_addr key in global_state state"""
+        value = self.app_client.state.global_state.get_value("lsig_addr")
+        if isinstance(value, dict) and "AVMBytes" in self._struct_classes:
+            return _init_dataclass(self._struct_classes["AVMBytes"], value)  # type: ignore
+        return typing.cast(bytes, value)
+
+    @property
+    def admin(self) -> bytes:
+        """Get the current value of the admin key in global_state state"""
+        value = self.app_client.state.global_state.get_value("admin")
+        if isinstance(value, dict) and "AVMBytes" in self._struct_classes:
+            return _init_dataclass(self._struct_classes["AVMBytes"], value)  # type: ignore
+        return typing.cast(bytes, value)
 
 class _BoxState:
     def __init__(self, app_client: algokit_utils.AppClient):
@@ -213,6 +477,50 @@ class _BoxState:
         if isinstance(value, dict) and "AVMUint64" in self._struct_classes:
             return _init_dataclass(self._struct_classes["AVMUint64"], value)  # type: ignore
         return typing.cast(int, value)
+
+    @property
+    def agent_permissions(self) -> "_MapState[bytes, bytes]":
+        """Get values from the agent_permissions map in box state"""
+        return _MapState(
+            self.app_client.state.box,
+            "agent_permissions",
+            None
+        )
+
+_KeyType = typing.TypeVar("_KeyType")
+_ValueType = typing.TypeVar("_ValueType")
+
+class _AppClientStateMethodsProtocol(typing.Protocol):
+    def get_map(self, map_name: str) -> dict[typing.Any, typing.Any]:
+        ...
+    def get_map_value(self, map_name: str, key: typing.Any) -> typing.Any | None:
+        ...
+
+class _MapState(typing.Generic[_KeyType, _ValueType]):
+    """Generic class for accessing state maps with strongly typed keys and values"""
+
+    def __init__(self, state_accessor: _AppClientStateMethodsProtocol, map_name: str,
+                struct_class: typing.Type[_ValueType] | None = None):
+        self._state_accessor = state_accessor
+        self._map_name = map_name
+        self._struct_class = struct_class
+
+    def get_map(self) -> dict[_KeyType, _ValueType]:
+        """Get all current values in the map"""
+        result = self._state_accessor.get_map(self._map_name)
+        if self._struct_class and result:
+            return {k: _init_dataclass(self._struct_class, v) if isinstance(v, dict) else v
+                    for k, v in result.items()}  # type: ignore
+        return typing.cast(dict[_KeyType, _ValueType], result or {})
+
+    def get_value(self, key: _KeyType) -> _ValueType | None:
+        """Get a value from the map by key"""
+        key_value = dataclasses.asdict(key) if dataclasses.is_dataclass(key) else key  # type: ignore
+        value = self._state_accessor.get_map_value(self._map_name, key_value)
+        if value is not None and self._struct_class and isinstance(value, dict):
+            return _init_dataclass(self._struct_class, value)  # type: ignore
+        return typing.cast(_ValueType | None, value)
+
 
 class AiRegistryClient:
     """Client for interacting with AiRegistry smart contract"""
@@ -360,7 +668,31 @@ class AiRegistryClient:
     @typing.overload
     def decode_return_value(
         self,
-        method: typing.Literal["issue_payment(uint64,account,string,byte[],byte[],uint64)void"],
+        method: typing.Literal["bootstrap(account,account)void"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
+        method: typing.Literal["register_agent(byte[],uint64,uint64,uint64)void"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
+        method: typing.Literal["issue_payment(uint64,account,string,byte[],byte[])void"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
+        method: typing.Literal["issue_axfer(account,uint64,uint64,byte[],byte[])void"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
+        method: typing.Literal["issue_opt_in(uint64,byte[],byte[])void"],
         return_value: algokit_utils.ABIReturn | None
     ) -> None: ...
     @typing.overload
@@ -545,20 +877,100 @@ class AiRegistryFactoryCreateParams:
             algokit_utils.AppFactoryCreateParams(**dataclasses.asdict(params)),
             compilation_params=compilation_params)
 
-    def issue_payment(
+    def bootstrap(
         self,
-        args: tuple[int, str | bytes, str, bytes | str, bytes | str, int] | IssuePaymentArgs,
+        args: tuple[str | bytes, str | bytes] | BootstrapArgs,
         *,
         params: algokit_utils.CommonAppCallCreateParams | None = None,
         compilation_params: algokit_utils.AppClientCompilationParams | None = None
     ) -> algokit_utils.AppCreateMethodCallParams:
-        """Creates a new instance using the issue_payment(uint64,account,string,byte[],byte[],uint64)void ABI method"""
+        """Creates a new instance using the bootstrap(account,account)void ABI method"""
         params = params or algokit_utils.CommonAppCallCreateParams()
         return self.app_factory.params.create(
             algokit_utils.AppFactoryCreateMethodCallParams(
                 **{
                 **dataclasses.asdict(params),
-                "method": "issue_payment(uint64,account,string,byte[],byte[],uint64)void",
+                "method": "bootstrap(account,account)void",
+                "args": _parse_abi_args(args),
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
+    def register_agent(
+        self,
+        args: tuple[bytes | str, int, int, int] | RegisterAgentArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the register_agent(byte[],uint64,uint64,uint64)void ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "register_agent(byte[],uint64,uint64,uint64)void",
+                "args": _parse_abi_args(args),
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
+    def issue_payment(
+        self,
+        args: tuple[int, str | bytes, str, bytes | str, bytes | str] | IssuePaymentArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the issue_payment(uint64,account,string,byte[],byte[])void ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "issue_payment(uint64,account,string,byte[],byte[])void",
+                "args": _parse_abi_args(args),
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
+    def issue_axfer(
+        self,
+        args: tuple[str | bytes, int, int, bytes | str, bytes | str] | IssueAxferArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the issue_axfer(account,uint64,uint64,byte[],byte[])void ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "issue_axfer(account,uint64,uint64,byte[],byte[])void",
+                "args": _parse_abi_args(args),
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
+    def issue_opt_in(
+        self,
+        args: tuple[int, bytes | str, bytes | str] | IssueOptInArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the issue_opt_in(uint64,byte[],byte[])void ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "issue_opt_in(uint64,byte[],byte[])void",
                 "args": _parse_abi_args(args),
                 }
             ),
@@ -666,9 +1078,45 @@ class AiRegistryComposer:
         self._composer = client.algorand.new_group()
         self._result_mappers: list[typing.Callable[[algokit_utils.ABIReturn | None], object] | None] = []
 
+    def bootstrap(
+        self,
+        args: tuple[str | bytes, str | bytes] | BootstrapArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "AiRegistryComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.bootstrap(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "bootstrap(account,account)void", v
+            )
+        )
+        return self
+
+    def register_agent(
+        self,
+        args: tuple[bytes | str, int, int, int] | RegisterAgentArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "AiRegistryComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.register_agent(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "register_agent(byte[],uint64,uint64,uint64)void", v
+            )
+        )
+        return self
+
     def issue_payment(
         self,
-        args: tuple[int, str | bytes, str, bytes | str, bytes | str, int] | IssuePaymentArgs,
+        args: tuple[int, str | bytes, str, bytes | str, bytes | str] | IssuePaymentArgs,
         params: algokit_utils.CommonAppCallParams | None = None
     ) -> "AiRegistryComposer":
         self._composer.add_app_call_method_call(
@@ -679,7 +1127,43 @@ class AiRegistryComposer:
         )
         self._result_mappers.append(
             lambda v: self.client.decode_return_value(
-                "issue_payment(uint64,account,string,byte[],byte[],uint64)void", v
+                "issue_payment(uint64,account,string,byte[],byte[])void", v
+            )
+        )
+        return self
+
+    def issue_axfer(
+        self,
+        args: tuple[str | bytes, int, int, bytes | str, bytes | str] | IssueAxferArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "AiRegistryComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.issue_axfer(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "issue_axfer(account,uint64,uint64,byte[],byte[])void", v
+            )
+        )
+        return self
+
+    def issue_opt_in(
+        self,
+        args: tuple[int, bytes | str, bytes | str] | IssueOptInArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "AiRegistryComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.issue_opt_in(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "issue_opt_in(uint64,byte[],byte[])void", v
             )
         )
         return self

@@ -140,7 +140,7 @@ def build(output_dir: Path, contract_path: Path) -> Path:
                     "--output",
                     str(_get_output_path(output_dir, deployment_extension)),
                 ],
-                encoding='utf-8',
+                encoding="utf-8",
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
@@ -179,7 +179,7 @@ def main(action: str, contract_name: str | None = None) -> None:
                 build(artifact_path / contract.name, contract.path)
         case "deploy":
             for contract in filtered_contracts:
-                if (contract.name == "ai_lsig"):
+                if contract.name == "ai_lsig":
                     continue
                 output_dir = artifact_path / contract.name
                 app_spec_file_name = next(
