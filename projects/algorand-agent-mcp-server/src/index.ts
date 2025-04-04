@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // Add fetch polyfill
 import "cross-fetch/polyfill";
 
@@ -5,19 +7,40 @@ import { AlgorandClient, Config } from "@algorandfoundation/algokit-utils";
 import { Logger } from "@algorandfoundation/algokit-utils/types/logging";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import algosdk, { ABIUintType } from "algosdk";
+import algosdk from "algosdk";
 import dotenv from "dotenv";
 import crypto from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
+import { AiRegistryClient } from "./AiRegistry";
 
-dotenv.config({
-  path: path.resolve(__dirname, "..", ".env"),
+// Load from .env file only if environment variables aren't already set
+if (!process.env.AGENT_NAME || !process.env.AGENT_AI_REGISTRY_APP_ID) {
+  dotenv.config({
+    path: path.resolve(__dirname, "..", ".env"),
+  });
+}
+
+// Validate required environment variables
+const requiredEnvVars = ["AGENT_NAME", "AGENT_AI_REGISTRY_APP_ID", "AGENT_PRIVATE_KEY"];
+
+// Check for either AGENT_LSIG or AGENT_LSIG_ADDRESS
+if (!process.env.AGENT_LSIG && !process.env.AGENT_LSIG_ADDRESS) {
+  requiredEnvVars.push("AGENT_LSIG or AGENT_LSIG_ADDRESS");
+}
+
+// Check all required env vars
+const missingVars = requiredEnvVars.filter((varName) => {
+  if (varName.includes("or")) {
+    // Special case for AGENT_LSIG or AGENT_LSIG_ADDRESS
+    return false;
+  }
+  return !process.env[varName];
 });
 
-if (!process.env.ALGOD_SERVER) {
-  console.error(".env not loaded correctly");
+if (missingVars.length > 0) {
+  console.error(`Missing required environment variables: ${missingVars.join(", ")}`);
   process.exit(1);
 }
 
@@ -88,7 +111,7 @@ const mcpAlgorandLogger: Logger = {
     }),
 };
 
-server.tool("issue_transaction", { receiver: z.string().length(58), amount: z.number() }, async ({ receiver, amount }) => {
+server.tool("issue_payment_transaction", { receiver: z.string().length(58), amount: z.number() }, async ({ receiver, amount }) => {
   try {
     const ed = await import("@noble/ed25519");
     // Configure the ed25519 library to use Node.js crypto
@@ -105,33 +128,46 @@ server.tool("issue_transaction", { receiver: z.string().length(58), amount: z.nu
     const suggestedParams = await algorand.getSuggestedParams();
     const firstRound = suggestedParams.firstValid;
     const signingKey = await Buffer.from(process.env.AGENT_PRIVATE_KEY!, "base64");
-    //const signingKey = ed.utils.randomPrivateKey();
     const publicKey = await ed.getPublicKeyAsync(signingKey);
 
-    // const amountBuffer = Buffer.alloc(8);
-    // amountBuffer.writeBigUInt64BE(BigInt(amount));
+    const amountBuffer = Buffer.alloc(8);
+    amountBuffer.writeBigUInt64BE(BigInt(amount));
 
-    const message = Buffer.concat([
-      ABIUintType.from("uint64").encode(amount),
-      algosdk.decodeAddress(receiver).publicKey,
-      Buffer.from(agentName, "utf-8"),
-      ABIUintType.from("uint64").encode(firstRound),
-    ]);
+    const receiverPk = algosdk.decodeAddress(receiver).publicKey;
+
+    const firstRoundBuffer = Buffer.alloc(8);
+    firstRoundBuffer.writeBigUInt64BE(BigInt(firstRound));
+
+    const message = Buffer.concat([amountBuffer, receiverPk, Buffer.from(agentName, "utf-8"), firstRoundBuffer]);
 
     const signature = await ed.signAsync(message, signingKey);
+
     // load app spec from ../AiRegistry.arc56.json
     const appSpec = await readFile(path.resolve(__dirname, "..", "AiRegistry.arc56.json"), "utf-8");
-    const client = algorand.client.getAppClientById({ appId: BigInt(process.env.AGENT_AI_REGISTRY_APP_ID!), appSpec });
+    const client = algorand.client.getTypedAppClientById(AiRegistryClient, {
+      appId: BigInt(process.env.AGENT_AI_REGISTRY_APP_ID!),
+    });
 
-    const logicSig = algorand.account.logicsig(Buffer.from(process.env.AGENT_LSIG!, "base64"));
+    // Use AGENT_LSIG if available, otherwise try to get it from AGENT_LSIG_ADDRESS
+    let logicSig;
+    if (process.env.AGENT_LSIG) {
+      logicSig = algorand.account.logicsig(Buffer.from(process.env.AGENT_LSIG, "base64"));
+    } else if (process.env.AGENT_LSIG_ADDRESS) {
+      // When AGENT_LSIG_ADDRESS is provided, use it directly as the sender address
+      mcpAlgorandLogger.info(`Using LSIG address: ${process.env.AGENT_LSIG_ADDRESS}`);
+      logicSig = process.env.AGENT_LSIG_ADDRESS;
+    }
 
-    const response = await client.send.call({
-      method: "issue_payment",
-      args: [amount, receiver, agentName, publicKey, signature, firstRound],
+    if (!logicSig) {
+      throw new Error("Either AGENT_LSIG or valid AGENT_LSIG_ADDRESS must be provided");
+    }
+
+    const response = await client.send.issuePayment({
+      args: [amount, receiver, agentName, publicKey, signature],
       sender: logicSig,
       populateAppCallResources: true,
       coverAppCallInnerTransactionFees: true,
-      maxFee: (4000).microAlgo(),
+      maxFee: (3000).microAlgo(), // Match the Python implementation's fee
     });
 
     return {

@@ -20,23 +20,37 @@ There are three phases in this design:
    1. The agent can make calls using the delegation app by creating a payload to describe the call to make, using it's private key to sign that payload and then using the logic sig to sign the transaction (so it doesn't need to have it's own account that needs to be managed on-chain)
    2. The delegation app then validates that the signature is valid for the public key, that the thing it is being asked to do by the agent is valid according to the restrictions for that agent, and then issues the underlying transaction(s) to perform the action
 
-## AlgoKit workspace root
+## Running Hackathon demo
 
-This is your workspace root. A `workspace` in AlgoKit is an orchestrated collection of standalone projects (backends, smart contracts, frontend apps and etc).
+> PLEASE NOTE: This setup has not been extensively tested on Windows. If you run into any windows specific issues, use unix or wait until this ideated hackathon project is further refined and improved ;)
 
-By default, `projects_root_path` parameter is set to `projects`. Which instructs AlgoKit CLI to create a new directory under `projects` directory when new project is instantiated via `algokit init` at the root of the workspace.
+## Quick Start Guide
 
-## Getting Started
+1. Initialize all project dependencies:
 
-To get started refer to `README.md` files in respective sub-projects in the `projects` directory.
+   ```bash
+   algokit project bootstrap all
+   ```
 
-To learn more about algokit, visit [documentation](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/algokit.md).
+2. Deploy the AI Registry smart contract to localnet:
 
-### GitHub Codespaces
+   ```bash
+   cd projects/makerx-ai-agents
+   algokit project deploy localnet
+   ```
 
-To get started execute:
+3. Start the agent deployer web interface:
 
-1. `algokit generate devcontainer` - invoking this command from the root of this repository will create a `devcontainer.json` file with all the configuration needed to run this project in a GitHub codespace. [Run the repository inside a codespace](https://docs.github.com/en/codespaces/getting-started/quickstart) to get started.
-2. `algokit init` - invoke this command inside a github codespace to launch an interactive wizard to guide you through the process of creating a new AlgoKit project
+   ```bash
+   cd projects/makerx-agent-deployer
+   npm run dev
+   ```
 
-Powered by [Copier templates](https://copier.readthedocs.io/en/stable/).
+4. Complete the setup:
+   - Navigate to http://localhost:3000 in your browser
+   - Deploy a new AI Registry
+   - Create and deploy an agent for your registry
+   - Copy the generated MCP configuration
+   - Paste the configuration into your Claude Desktop agent configuration JSON file
+   - Restart Claude Desktop
+   - Interact with your agent by asking it to perform operations within its permissions

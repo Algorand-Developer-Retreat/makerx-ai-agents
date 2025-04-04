@@ -9,16 +9,24 @@
     },
     {
       "path": "projects/algorand-agent-mcp-server"
+    },
+    {
+      "path": "projects/makerx-agent-deployer"
     }
   ],
   "settings": {
     "files.exclude": {
       "projects/": true
     },
-    "jest.disabledWorkspaceFolders": ["ROOT", "projects"]
+    "jest.disabledWorkspaceFolders": [
+      "ROOT",
+      "projects"
+    ]
   },
   "extensions": {
-    "recommendations": ["joshx.workspace-terminals"]
+    "recommendations": [
+      "joshx.workspace-terminals"
+    ]
   },
   "tasks": {
     "version": "2.0.0",

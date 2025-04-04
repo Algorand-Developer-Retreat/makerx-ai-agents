@@ -1,9 +1,13 @@
 {
-  "name": "algorand-agent-mcp-server",
-  "version": "1.0.0",
+  "name": "makerx-algorand-agent-mcp-server",
+  "version": "0.0.2",
   "main": "build/index.js",
+  "bin": {
+    "algorand-agent-mcp": "./build/index.js"
+  },
   "scripts": {
     "build": "npm run clean && tsc",
+    "postbuild": "chmod +x build/index.js",
     "clean": "rimraf build",
     "start": "tsx src/index.ts",
     "test": "npm run build && tsx src/test_client.ts"

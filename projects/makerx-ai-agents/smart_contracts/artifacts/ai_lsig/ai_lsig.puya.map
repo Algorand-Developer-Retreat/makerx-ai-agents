@@ -3,7 +3,7 @@
   "sources": [
     "../../ai_lsig/contract.py"
   ],
-  "mappings": "AAMW;;AAAwB;;AAAxB;AAAP;AACO;;AAAgC;AAAhC;AAAP;AAGO;;AAAuB;;AAAvB;AAAP;AACO;;AAAiC;;AAAjC;AAAP;AACO;;AAAA;AAAP;AACO;;AAAP",
+  "mappings": "AAOW;;AAAwB;;AAAxB;AAAP;AACO;;AAAgC;AAAhC;AAAP;AAGO;;AAAuB;;AAAvB;AAAP;AACO;;AAAiC;;AAAjC;AAAP;AACO;;AAAA;AAAP;AAIO;;AAAP",
   "op_pc_offset": 1,
   "pc_events": {
     "0": {
